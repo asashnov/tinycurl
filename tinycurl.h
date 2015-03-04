@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
+#include <stdexcept>
 
 extern "C"
 {
@@ -10,32 +11,20 @@ extern "C"
 }
 
 //Exception class for curl exception
-
-class CurlException : std::exception
+class CurlException : public std::runtime_error
 {
 public:
-   CurlException(std::string message):m_message(message) {  }
-   CurlException(CURLcode error)
-   {
-      m_message = curl_easy_strerror(error);
-   }
-   const char* what() throw()
-   {
-      return m_message.c_str();
-   }
-   ~CurlException() throw() { }
-
-private:
-   std::string m_message;
+   CurlException(std::string const& message): std::runtime_error(message) {}
+   CurlException(CURLcode error): std::runtime_error(curl_easy_strerror(error)) {}
 };
 
+extern "C" size_t WriteDataCallback(void *ptr, size_t size, size_t nmemb, void* pInstance);
 
 //A tiny wrapper around Curl C Library
-
 class CppCurl
 {
 public:
-   CppCurl(std::string url) throw (CurlException)
+   CppCurl(std::string url)
    {
       m_handle = curl_easy_init();
       if ( m_handle == NULL )
@@ -45,22 +34,39 @@ public:
       m_url = url;
    }
 
-   std::string Fetch() throw (CurlException)
+   std::string Fetch()
    {
       SetOptions();
       SendGetRequest();
       return m_data;
    }
 
+   size_t write_data(void* ptr, size_t size, size_t nmemb)
+   {
+      size_t numOfBytes = size * nmemb;
 
-   ~CppCurl() throw()
+      char *iter = (char*)ptr;
+      char *iterEnd = iter + numOfBytes;
+
+      //while ( iter != iterEnd )
+      //{
+      //   cout<<*iter;
+      //   iter ++;
+      //}
+
+      m_data += std::string(iter, iterEnd);
+
+      return numOfBytes;
+   }
+
+   ~CppCurl()
    {
       curl_easy_cleanup(m_handle);
    }
 
 private:
 
-   void SetOptions() throw (CurlException)
+   void SetOptions()
    {
       CURLcode res;
 
@@ -75,8 +81,7 @@ private:
          throw CurlException(res);
 
       //set the callback function
-      res = curl_easy_setopt(m_handle, CURLOPT_WRITEFUNCTION,
-                              CppCurl::WriteDataCallback);
+      res = curl_easy_setopt(m_handle, CURLOPT_WRITEFUNCTION, WriteDataCallback);
       if ( res != CURLE_OK )
          throw CurlException(res);
 
@@ -101,26 +106,13 @@ private:
       return (static_cast<CppCurl*>(pInstance))->write_data(ptr, size, nmemb);
    }
 
-   size_t write_data(void* ptr, size_t size, size_t nmemb)
-   {
-      size_t numOfBytes = size * nmemb;
-
-      char *iter = (char*)ptr;
-      char *iterEnd = iter + numOfBytes;
-
-      //while ( iter != iterEnd )
-      //{
-      //   cout<<*iter;
-      //   iter ++;
-      //}
-
-      m_data += std::string(iter, iterEnd);
-
-      return numOfBytes;
-   }
-
    CURL *m_handle;
    std::string m_url;
    std::string m_data;
-
 };
+
+extern "C" size_t WriteDataCallback(void *ptr, size_t size, size_t nmemb, void* pInstance)
+{
+   CppCurl*   obj = reinterpret_cast<CppCurl*>(pInstance);
+   return obj->write_data(ptr, size, nmemb);
+}
