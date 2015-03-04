@@ -1,13 +1,23 @@
-CXX        := g++
-CXXFLAGS   := -Wall -g -O0
+CC := g++
 
-SRCS := test.cpp
+PROG := test
 
-PROGS := test
+OBJECTS := tinycurl.o test.o
+
+CXXFLAGS := -Wall -g -O0
 
 LDLIBS += -lcurl
 
-default: ${PROGS}
 
+default: ${PROG}
+
+all: ${PROG}
+
+
+$(PROG): $(OBJECTS)
+
+$(OBJECTS): tinycurl.h
+
+.PHONY : clean
 clean:
-	rm -f core.* ${PROGS} *~
+	rm -f core.* ${PROGS} ${OBJECTS} *~
