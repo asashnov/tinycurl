@@ -1,5 +1,4 @@
-# tinycurl
-Tiny Curl C++ wrapper
+# Tiny Curl C++ wrapper
 
 This work is based on
 http://codereview.stackexchange.com/questions/14389/tiny-curl-c-wrapper
