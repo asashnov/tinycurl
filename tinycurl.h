@@ -35,7 +35,7 @@ public:
     };
 
     TinyCurl(const std::string &url);
-    ~TinyCurl();
+    ~TinyCurl() noexcept;
 
     typedef std::map<std::string,std::string> headers_t;
 
@@ -58,7 +58,7 @@ private:
     TinyCurl(const TinyCurl &);
 
     void setOptions();
-    void setHTTPHeaders(const headers_t &hdrs) const;
+    void setHTTPHeaders(const headers_t &hdrs);
 
     void curlPerform();
 
@@ -66,4 +66,5 @@ private:
     std::string m_url;
     std::string m_data;
     std::string m_upload_data;
+    struct curl_slist *opt_list = NULL;
 };
