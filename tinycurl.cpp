@@ -18,7 +18,7 @@ TinyCurl::TinyCurl(const std::string &url)
     m_url = url;
 }
 
-TinyCurl::~TinyCurl()
+TinyCurl::~TinyCurl() noexcept
 {
     curl_easy_cleanup(m_handle);
     curl_slist_free_all(opt_list);
