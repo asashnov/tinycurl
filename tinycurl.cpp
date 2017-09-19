@@ -9,6 +9,7 @@
 
 TinyCurl::TinyCurl(const std::string &url)
 {
+    curl_global_init(CURL_GLOBAL_ALL);
     m_handle = curl_easy_init();
     if ( m_handle == NULL )
         throw Exception("Unable to initialize curl handler");
@@ -20,20 +21,21 @@ TinyCurl::TinyCurl(const std::string &url)
 TinyCurl::~TinyCurl()
 {
     curl_easy_cleanup(m_handle);
+    curl_slist_free_all(opt_list);
+    curl_global_cleanup();
 }
 
-void TinyCurl::setHTTPHeaders(const headers_t &hdrs) const
+void TinyCurl::setHTTPHeaders(const headers_t &hdrs)
 {
     if (! hdrs.empty())
     {
-        struct curl_slist *chunk = NULL;
         for (headers_t::const_iterator i = hdrs.begin() ; i != hdrs.end() ; ++i) {
             std::string h(i->first);
             h += ": ";
             h += i->second;
-            chunk = curl_slist_append(chunk, h.c_str());
+            opt_list = curl_slist_append(opt_list, h.c_str());
         }
-        CURLcode res = curl_easy_setopt(m_handle, CURLOPT_HTTPHEADER, chunk);
+        CURLcode res = curl_easy_setopt(m_handle, CURLOPT_HTTPHEADER, opt_list);
         if ( res != CURLE_OK)
             throw Exception(res);
     }
