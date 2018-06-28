@@ -1,15 +1,16 @@
-/*
- * Tiny Curl C++ wrapper.
- *
- * This work is based on code by
- *   Asit Kumar Dhal <dhal.asitk@gmail.com> (https://github.com/asit-dhal)
- *   Loki Astari <Loki.Astari@gmail.com> (https://github.com/Loki-Astari)
- *  http://codereview.stackexchange.com/questions/14389/tiny-curl-c-wrapper
- * Thank you guys!
- *
- * License: Unlicensed (Public Domain)
- * Homepage: https://github.com/asashnov/tinycurl
- */
+ /** @brief Tiny Curl C++ wrapper.
+
+ This work is based on code by
+ 
+ [Asit Kumar Dhal <dhal.asitk@gmail.com>](https://github.com/asit-dhal)
+ [Loki Astari <Loki.Astari@gmail.com>] (https://github.com/Loki-Astari)
+
+ 
+ Thank you guys!
+ License: Unlicensed (Public Domain)
+  [Homepage] (https://github.com/asashnov/tinycurl)
+*/
+
 #include <string>
 #include <map>
 #include <stdexcept>
